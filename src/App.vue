@@ -1,5 +1,19 @@
 <template>
   <div id="app">
+    <div id="geolocation">
+      <div v-if="errorStr">
+        Sorry, but the following error
+        occurred: {{errorStr}}
+      </div>
+
+      <div v-if="gettingLocation">
+        <i>Getting your location...</i>
+      </div>
+
+      <div v-if="location">
+        Your location data is {{ location.coords.latitude }}, {{ location.coords.longitude}}
+      </div>
+    </div>
     <div id="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
@@ -7,6 +21,33 @@
     <router-view/>
   </div>
 </template>
+
+<script>
+export default {
+  name: 'App',
+  data () {
+    return {
+      location: null,
+      gettingLocation: false,
+      errorStr: null
+    }
+  },
+  created () {
+    if (!('geolocation' in navigator)) {
+      this.errorStr = 'Geolocation is not available.'
+    }
+    this.gettingLocation = true
+    // get position
+    navigator.geolocation.getCurrentPosition(pos => {
+      this.gettingLocation = false
+      this.location = pos
+    }, err => {
+      this.gettingLocation = false
+      this.errorStr = err.message
+    })
+  }
+}
+</script>
 
 <style lang="scss">
 #app {
